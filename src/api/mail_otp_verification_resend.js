@@ -44,8 +44,8 @@ const resendMailOTP = async (req, res) => {
         await users.updateOne({ _id }, { userOTP: req.code, isOTP_verified: false });
 
         await sendMail({ userMail: await decryption(email), 
-            subject: "Re-send OTP mail from sample project..",
-            html: `<p>Your re-send otp is ${req.code}.</p>`
+            subject: "OTP mail from sample project..",
+            html: `<p>Your verification otp is ${req.code}.</p>`
         });
 
         return resultResponse(res, statusCodes.success, errorMessages.otpSent);

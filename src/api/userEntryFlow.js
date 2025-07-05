@@ -69,11 +69,6 @@ const signIn = async (req, res) => {
 
         let responseData = await makeSession(getUserDetails, deviceID, deviceType);
 
-        await sendMail({ userMail: await decryption(getUserDetails.email), 
-            subject: "Two-step verification mail from sample project..",
-            html: `<p>Your two-step verification code is ${req.code}.</p>`
-        });
-
         return resultResponse(res, statusCodes.success, successMessages.loggedIn, responseData);
     } catch (error) {
         return resultResponse(res, statusCodes.internalError, errorMessages.internalError, error.message);

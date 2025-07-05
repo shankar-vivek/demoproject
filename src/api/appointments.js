@@ -9,6 +9,9 @@ const { successMessages, errorMessages } = responseMessages;
 
 const createUserAppointment = async (req, res) => {
     try {
+        if (req.user.userType === "admin")
+            return resultResponse(res, statusCodes.unauthorizedUser, errorMessages.accessNotFound);
+
         const { date, startTime, endTime, remindBefore } = req.body;
 
         let insertData = {
@@ -17,7 +20,7 @@ const createUserAppointment = async (req, res) => {
             startTime, 
             endTime, 
             remindBefore,
-            remindTime: addMinutesByTimestamp(new Date(startTime), -remindBefore)
+            remindTime: addMinutesByTimestamp(new Date(startTime), Number(remindBefore))
         }, userNewAppointment;
 
         userNewAppointment = await appointments.create(insertData);
@@ -53,11 +56,10 @@ const getUpcomingAppointments = async (req, res) => {
     try {
         req.getData = req.user.userType === "admin" ? {} : { userID: toObjectID(req.user.id) };
 
-        return resultResponse(res, statusCodes.success, successMessages.success, 
-            await appointments.find(req.getData).sort({ date: -1 }).lean()
-        );
+        req.result = await appointments.find(req.getData).sort({ date: -1 }).lean();
+        return resultResponse(res, statusCodes.success, successMessages.success, req.result);
     } catch (error) {
-        
+        return resultResponse(res, statusCodes.internalError, errorMessages.internalError, error.message);
     }
 };
 

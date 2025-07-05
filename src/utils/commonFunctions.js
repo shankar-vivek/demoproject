@@ -106,7 +106,7 @@ const generateNdigitsNumber = (count) => {
 
 
 const addMinutesByTimestamp = (date, minutesToAdd) => {
-    const millisecondsToAdd = minutesToAdd * 60 * 1000;
+    const millisecondsToAdd = -minutesToAdd * 60 * 1000;
     return new Date(date.getTime() + millisecondsToAdd);
 };
 

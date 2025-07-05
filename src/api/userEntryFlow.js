@@ -15,11 +15,12 @@ const signUp = async (req, res) => {
 
         const hashedPassword = !req.body.isAuth ? passwordHashing(password) : null;
 
+        req.code = generateNdigitsNumber(4);
         const insertData = {
             email: await encryption(email),
             password: hashedPassword,
             is_oauth: req.body.isAuth ? true : false,
-            userOTP: generateNdigitsNumber(4)
+            userOTP: req.code
         };
 
         let insertUserData = await users.create(insertData);
@@ -27,6 +28,11 @@ const signUp = async (req, res) => {
         const responseData = await makeSession(insertUserData, 'test12345', "IOS");
         if (responseData === errorMessages.dbError)
             return resultResponse(res, statusCodes.internalError, errorMessages.dbError);
+
+        await sendMail({ userMail: email, 
+            subject: "Verification mail from sample project..",
+            html: `<p>Your verification code is ${req.code}.</p>`
+        }); 
 
         return resultResponse(res, statusCodes.success, successMessages.signup, responseData);
     } catch (error) {

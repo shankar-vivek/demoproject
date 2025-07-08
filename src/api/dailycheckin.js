@@ -2,13 +2,14 @@ import { toObjectID } from "../database/mongoose.js";
 import { dailyCheckInInfo, users } from "../models/modelIndex.js";
 import { resultResponse } from "../utils/commonFunctions.js";
 import constants from "../utils/constants.json" assert { type: "json" };
+import { decryption } from "../utils/encryption_decryption.js";
 const { statusCodes, responseMessages } = constants;
-const { successMessages, errorMessages } = responseMessages;
+const { successMessages, errorMessages, userTypes } = responseMessages;
 
 
 const addDailyCheckInQuestions = async (req, res) => {
     try {
-        if (req.user.userType === "admin")
+        if (req.user.userType === userTypes[0])
             return resultResponse(res, statusCodes.unauthorizedUser, errorMessages.accessNotFound);
 
         const { currentDate, questionAndAnswers } = { ...req.body, ...req.params, ...req.query };
@@ -28,7 +29,7 @@ const addDailyCheckInQuestions = async (req, res) => {
 
 const fetchDailyCheckIn = async (req, res) => {
     try {
-        req.getData = req.user.userType === "admin" ? {} : { userID: toObjectID(req.user.id) };
+        req.getData = req.user.userType === userTypes[0] ? {} : { userID: toObjectID(req.user.id) };
 
         let dailyQuestionData = await dailyCheckInInfo.find(req.getData).lean();
 
@@ -39,4 +40,24 @@ const fetchDailyCheckIn = async (req, res) => {
 };
 
 
-export { addDailyCheckInQuestions, fetchDailyCheckIn };
+const fetchAllUserDetails = async (req, res) => {
+    try {
+        if (req.user.userType === userTypes[1])
+            return resultResponse(res, statusCodes.unauthorizedUser, errorMessages.unauthorizedUserToProcess);
+
+        req.resultData = await users.find({ userType: userTypes[1] }, { password: 0 }).lean();
+        
+        if (req.resultData.length) {
+            for (let i = 0; i < req.resultData.length; i++) {
+                req.resultData[i].email = await decryption(req.resultData[i].email);
+            }
+        }
+
+        return resultResponse(res, statusCodes.success, successMessages.success, req.resultData);
+    } catch (error) {
+        return resultResponse(res, statusCodes.internalError, errorMessages.internalError, error.message);
+    }
+};
+
+
+export { addDailyCheckInQuestions, fetchDailyCheckIn, fetchAllUserDetails };

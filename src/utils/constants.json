@@ -9,6 +9,7 @@
         "internalError": 500
     },
     "responseMessages": {
+        "userTypes": ["admin", "user"],
         "successMessages": {
             "welcomeNote": "Welcome to SAMPLE PROJECT....",
             "success": "Success.!",

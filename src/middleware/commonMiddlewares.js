@@ -5,7 +5,7 @@ import constants from "../utils/constants.json" assert { type: "json" };
 import { encryption } from "../utils/encryption_decryption.js";
 import { toObjectID } from "../database/mongoose.js";
 const { statusCodes, responseMessages } = constants;
-const { successMessages, errorMessages } = responseMessages;
+const { errorMessages, userTypes } = responseMessages;
 
 
 const verifyUserExistance = async (req, res, next) => {
@@ -94,7 +94,7 @@ const verifyUserID = async (req, res, next) => {
 
 const verifyAppointmentID = async (req, res, next) => {
     try {
-        if (req.user.userType === "user")
+        if (req.user.userType === userTypes[1])
             return resultResponse(res, statusCodes.unauthorizedUser, errorMessages.accessNotFound);
 
         const appointmentID = req.body.appointmentID || null;

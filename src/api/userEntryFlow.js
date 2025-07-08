@@ -43,7 +43,7 @@ const signUp = async (req, res) => {
 
 const signIn = async (req, res) => {
     try {
-      let { email, password, deviceID = 'test123', deviceType = "IOS", userType } = req.body;
+      let { email, password, deviceID = 'test123', deviceType = "IOS" } = req.body;
 
         if (!req.body.isAuth) {
             if (!email || !password)

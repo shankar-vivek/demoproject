@@ -4,12 +4,12 @@ import { appointments } from "../models/modelIndex.js";
 import { resultResponse } from "../utils/commonFunctions.js";
 import constants from "../utils/constants.json" assert { type: "json" };
 const { statusCodes, responseMessages } = constants;
-const { successMessages, errorMessages } = responseMessages;
+const { successMessages, errorMessages, userTypes } = responseMessages;
 
 
 const createUserAppointment = async (req, res) => {
     try {
-        if (req.user.userType === "admin")
+        if (req.user.userType === userTypes[0])
             return resultResponse(res, statusCodes.unauthorizedUser, errorMessages.accessNotFound);
 
         const { date, startTime, endTime, remindBefore } = req.body;
@@ -54,7 +54,9 @@ const updateAppointment = async (req, res) => {
 
 const getUpcomingAppointments = async (req, res) => {
     try {
-        req.getData = req.user.userType === "admin" ? {} : { userID: toObjectID(req.user.id) };
+        req.getData = req.user.userType === userTypes[0] 
+            ? { date: { $gte: new Date().toISOString().split("T")[0] } } 
+        : { userID: toObjectID(req.user.id), date: { $gte: new Date().toISOString().split("T")[0] } };
 
         req.result = await appointments.find(req.getData).sort({ date: -1 }).lean();
         return resultResponse(res, statusCodes.success, successMessages.success, req.result);

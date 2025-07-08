@@ -81,7 +81,9 @@ const appointmentRemainder = async () => {
 
         lt = `${new Date().toISOString().split("T")[0]}T${nextMinute.toLocaleTimeString('en-GB', { hour12: false })}Z`;
 
-        let getCurrentAppointments = await appointments.find({ remindTime: { $gte: gte, $lt: lt } }).populate('userID').lean();
+        let getCurrentAppointments = await appointments.find({ 
+            remindTime: { $gte: gte, $lt: lt }, appointmentStatus: "accepted"
+         }).populate('userID').lean();
 
         if (getCurrentAppointments.length) {
             for (let i = 0; i < getCurrentAppointments.length; i++) {

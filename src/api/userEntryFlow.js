@@ -84,7 +84,7 @@ const signIn = async (req, res) => {
 
 const getUserDetails = async (req, res) => {
     try {
-        let userDetails = await users.findOne({ _id: toObjectID(req.user.id) }).lean();
+        let userDetails = await users.findOne({ _id: toObjectID(req.user.id) }, { password: 0 }).lean();
 
         userDetails.email = await decryption(userDetails.email);
 

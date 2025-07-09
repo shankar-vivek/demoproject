@@ -54,8 +54,12 @@ const updateAppointment = async (req, res) => {
 
 const getUpcomingAppointments = async (req, res) => {
     try {
+        req.userID = req.params.userID || req.query.userID || null;
+        if (req.user.userType === userTypes[0] && !req.userID)
+            return resultResponse(res, statusCodes.badRequest, errorMessages.idRequired);
+
         req.getData = req.user.userType === userTypes[0] 
-            ? { date: { $gte: new Date().toISOString().split("T")[0] } } 
+            ? { userID: toObjectID(req.params.userID), date: { $gte: new Date().toISOString().split("T")[0] } } 
         : { userID: toObjectID(req.user.id), date: { $gte: new Date().toISOString().split("T")[0] } };
 
         req.result = await appointments.find(req.getData).sort({ date: -1 }).lean();

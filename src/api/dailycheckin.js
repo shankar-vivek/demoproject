@@ -29,7 +29,13 @@ const addDailyCheckInQuestions = async (req, res) => {
 
 const fetchDailyCheckIn = async (req, res) => {
     try {
-        req.getData = req.user.userType === userTypes[0] ? {} : { userID: toObjectID(req.user.id) };
+        req.userID = req.params.userID || req.query.userID || null;
+        if (req.user.userType === userTypes[0] && !req.userID)
+            return resultResponse(res, statusCodes.badRequest, errorMessages.idRequired);
+        
+        req.getData = req.user.userType === userTypes[0] 
+            ? { userID: toObjectID(req.params.userID) } 
+        : { userID: toObjectID(req.user.id) };
 
         let dailyQuestionData = await dailyCheckInInfo.find(req.getData).lean();
 
